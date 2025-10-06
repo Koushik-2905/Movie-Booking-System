@@ -8,6 +8,7 @@ import Signup from "./pages/Signup";
 import ManageUsers from "./pages/admin/ManageUsers";
 import ManageGenres from "./pages/admin/ManageGenres";
 import ManageMovies from "./pages/admin/ManageMovies";
+import ManageBookings from "./pages/admin/ManageBookings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import Checkout from "./pages/Checkout";
@@ -26,6 +27,7 @@ export default function App() {
         <Link to="/admin/users">Admin Users</Link>
         <Link to="/admin/genres">Admin Genres</Link>
         <Link to="/admin/movies">Admin Movies</Link>
+        <Link to="/admin/bookings">Admin Bookings</Link>
       </nav>
       <Routes>
         <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
@@ -38,6 +40,7 @@ export default function App() {
         <Route path="/admin/users" element={<ProtectedRoute><ManageUsers /></ProtectedRoute>} />
         <Route path="/admin/genres" element={<ProtectedRoute><ManageGenres /></ProtectedRoute>} />
         <Route path="/admin/movies" element={<ProtectedRoute><ManageMovies /></ProtectedRoute>} />
+        <Route path="/admin/bookings" element={<ProtectedRoute><ManageBookings /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
