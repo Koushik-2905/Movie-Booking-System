@@ -33,11 +33,19 @@ export default function Home() {
     }
   };
 
-  const addToCart = async (movie_id, seats = 1) => {
+  const addToCart = async (movie_id, seats_selected = 1, selected_seats = []) => {
     if (!user) { setMessage({ type: "error", text: "Please login first" }); return; }
     try {
-      const res = await api.addToWatchlist({ user_id: user.customer_id, movie_id, seats_selected: seats });
-      setMessage(res.success ? { type: "success", text: "Added to watchlist" } : { type: "error", text: res.message || "Error adding" });
+      const res = await api.addToWatchlist({ 
+        user_id: user.customer_id, 
+        movie_id, 
+        seats_selected,
+        selected_seats: selected_seats.join(',') // Store selected seats as comma-separated string
+      });
+      setMessage(res.success ? { 
+        type: "success", 
+        text: `Added ${seats_selected} seat${seats_selected > 1 ? 's' : ''} to watchlist${selected_seats.length > 0 ? ` (${selected_seats.join(', ')})` : ''}` 
+      } : { type: "error", text: res.message || "Error adding" });
     } catch (e) {
       setMessage({ type: "error", text: e.message || "Failed" });
     }

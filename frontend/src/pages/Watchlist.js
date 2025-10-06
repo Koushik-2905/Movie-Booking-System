@@ -39,6 +39,7 @@ export default function Watchlist() {
             <tr>
               <th>Movie</th>
               <th>Seats</th>
+              <th>Selected Seats</th>
               <th>Price</th>
               <th></th>
             </tr>
@@ -48,6 +49,17 @@ export default function Watchlist() {
               <tr key={i.cart_id}>
                 <td>{i.name}</td>
                 <td>{i.quantity}</td>
+                <td>
+                  {i.selected_seats ? (
+                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>
+                      {i.selected_seats}
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: '12px', color: 'var(--muted)', fontStyle: 'italic' }}>
+                      No specific seats
+                    </span>
+                  )}
+                </td>
                 <td>₹{Number(i.price).toFixed(2)}</td>
                 <td>
                   <button className="btn btn-danger" onClick={() => removeItem(i.cart_id)}>Remove</button>

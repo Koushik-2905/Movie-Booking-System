@@ -16,7 +16,7 @@ def get_watchlist(user_id):
     cursor = conn.cursor()
     try:
         cursor.execute(
-            "SELECT w.watchlist_id AS cart_id, w.movie_id, w.seats_selected AS quantity, m.title AS name, m.price "
+            "SELECT w.watchlist_id AS cart_id, w.movie_id, w.seats_selected AS quantity, w.selected_seats, m.title AS name, m.price "
             "FROM watchlist w JOIN movies m ON w.movie_id=m.movie_id WHERE w.user_id=%s",
             (user_id,)
         )
@@ -34,19 +34,32 @@ def add_to_watchlist():
     user_id = data.get('user_id') or data.get('customer_id')
     movie_id = data.get('movie_id') or data.get('product_id')
     seats_selected = int(data.get('seats_selected') or data.get('quantity') or 1)
+    selected_seats = data.get('selected_seats', '')  # Comma-separated seat IDs
+    
     if not (user_id and movie_id):
         return jsonify({"success": False, "message": "user_id/customer_id and movie_id/product_id required"}), 400
 
     conn = get_db()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT seats_selected FROM watchlist WHERE user_id=%s AND movie_id=%s", (user_id, movie_id))
+        # Check if this movie is already in watchlist
+        cursor.execute("SELECT watchlist_id, seats_selected, selected_seats FROM watchlist WHERE user_id=%s AND movie_id=%s", (user_id, movie_id))
         r = cursor.fetchone()
+        
         if r:
-            new_seats = r[0] + seats_selected
-            cursor.execute("UPDATE watchlist SET seats_selected=%s WHERE user_id=%s AND movie_id=%s", (new_seats, user_id, movie_id))
+            # Update existing entry
+            new_seats = r[1] + seats_selected
+            # Combine selected seats (append new ones)
+            existing_seats = r[2] or ''
+            combined_seats = ','.join(filter(None, [existing_seats, selected_seats])) if selected_seats else existing_seats
+            
+            cursor.execute("UPDATE watchlist SET seats_selected=%s, selected_seats=%s WHERE watchlist_id=%s", 
+                         (new_seats, combined_seats, r[0]))
         else:
-            cursor.execute("INSERT INTO watchlist (user_id, movie_id, seats_selected) VALUES (%s,%s,%s)", (user_id, movie_id, seats_selected))
+            # Insert new entry
+            cursor.execute("INSERT INTO watchlist (user_id, movie_id, seats_selected, selected_seats) VALUES (%s,%s,%s,%s)", 
+                         (user_id, movie_id, seats_selected, selected_seats))
+        
         conn.commit()
         return jsonify({"success": True, "message": "Added to watchlist"})
     except Exception as e:
