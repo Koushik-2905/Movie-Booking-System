@@ -1,0 +1,26 @@
+# Development dependencies for the ecommerce project
+
+# Testing
+pytest==7.4.2
+pytest-flask==1.2.0
+pytest-cov==4.1.0
+
+# Code Quality
+flake8==6.0.0
+black==23.7.0
+isort==5.12.0
+
+# Documentation
+sphinx==7.1.2
+sphinx-rtd-theme==1.3.0
+
+# Development Tools
+python-dotenv==1.0.0
+flask-debugtoolbar==0.13.1
+
+# Database Tools
+mysql-connector-python==8.1.0
+sqlalchemy==2.0.19
+
+# API Testing
+requests==2.31.0
