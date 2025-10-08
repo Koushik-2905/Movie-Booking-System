@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import Checkout from "./pages/Checkout";
 import Payment from "./pages/Payment";
+import MyBookings from "./pages/MyBookings";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Link to="/">Home</Link>
         <Link to="/cart">Cart</Link>
         <Link to="/checkout">Checkout</Link>
+        <Link to="/my-bookings">My Bookings</Link>
         <span className="spacer" />
         <Link to="/login">Login</Link>
         <Link to="/signup">Signup</Link>
@@ -35,6 +37,7 @@ export default function App() {
         <Route path="/cart" element={<ProtectedRoute><Watchlist /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
         <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
+        <Route path="/my-bookings" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/admin/users" element={<ProtectedRoute><ManageUsers /></ProtectedRoute>} />

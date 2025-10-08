@@ -27,7 +27,7 @@ export default function ManageMovies() {
 
   async function update(movie) {
     try {
-      const payload = { title: movie.title, price: movie.price, available_seats: movie.available_seats, genre_id: movie.genre_id, duration: movie.duration, showtime: movie.showtime, admin_email: adminEmail, admin_password: adminPassword };
+      const payload = { title: movie.title, price: movie.price, available_seats: movie.available_seats, genre_id: movie.genre_id, duration: movie.duration, showtime: movie.showtime, description: movie.description, admin_email: adminEmail, admin_password: adminPassword };
       const res = await api.updateMovie(movie.movie_id, payload);
       if (res.success) setMessage({ type: "success", text: "Updated" });
       else setMessage({ type: "error", text: res.message || "Update failed" });
@@ -77,11 +77,18 @@ export default function ManageMovies() {
             <tr key={m.movie_id}>
               <td>{m.movie_id}</td>
               <td><input defaultValue={m.title} onBlur={(e) => update({ ...m, title: e.target.value })} /></td>
-              <td>{m.genre}</td>
+              <td>
+                <select defaultValue={m.genre_id} onChange={(e) => update({ ...m, genre_id: e.target.value })}>
+                  {genres.map(g => (<option key={g.genre_id} value={g.genre_id}>{g.name}</option>))}
+                </select>
+              </td>
               <td><input defaultValue={m.price} onBlur={(e) => update({ ...m, price: e.target.value })} /></td>
               <td><input defaultValue={m.available_seats} onBlur={(e) => update({ ...m, available_seats: e.target.value })} /></td>
               <td><input defaultValue={m.duration} onBlur={(e) => update({ ...m, duration: e.target.value })} /></td>
               <td><input defaultValue={m.showtime} onBlur={(e) => update({ ...m, showtime: e.target.value })} /></td>
+              <td style={{minWidth: 220}}>
+                <textarea defaultValue={m.description || ''} onBlur={(e) => update({ ...m, description: e.target.value })} />
+              </td>
               <td><button className="btn btn-danger" onClick={() => remove(m.movie_id)}>Delete</button></td>
             </tr>
           ))}

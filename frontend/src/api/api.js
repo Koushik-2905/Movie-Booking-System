@@ -54,6 +54,7 @@ export const api = {
     if (admin_password) url.searchParams.set("admin_password", admin_password);
     return handleResponse(await fetch(url.toString()));
   },
+  listUserBookings: async (userId) => handleResponse(await fetch(endpoints.bookings.listByUser(userId))),
   createPayment: async ({ booking_id, amount, method, status }) => handleResponse(await fetch(endpoints.payments.create, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ booking_id, amount, method, status }) })),
   getReviews: async (movieId) => handleResponse(await fetch(endpoints.reviews.listForMovie(movieId))),
   createReview: async ({ user_id, movie_id, rating, comment }) => handleResponse(await fetch(endpoints.reviews.create, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_id, movie_id, rating, comment }) })),

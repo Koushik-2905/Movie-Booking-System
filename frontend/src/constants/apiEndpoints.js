@@ -25,7 +25,7 @@ export const endpoints = {
     add: `${BASE_URL}/watchlist/`,
     remove: (watchlistId) => `${BASE_URL}/watchlist/${watchlistId}`,
   },
-  bookings: { create: `${BASE_URL}/bookings`, listAll: `${BASE_URL}/bookings/all` },
+  bookings: { create: `${BASE_URL}/bookings`, listAll: `${BASE_URL}/bookings/all`, listByUser: (userId) => `${BASE_URL}/bookings/user/${userId}` },
   payments: { create: `${BASE_URL}/payments` },
   reviews: {
     listForMovie: (movieId) => `${BASE_URL}/reviews/${movieId}`,

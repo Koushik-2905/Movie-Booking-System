@@ -100,3 +100,57 @@ def list_all_bookings():
         cursor.close()
         conn.close()
 
+
+@bookings_bp.route('/user/<int:user_id>', methods=['GET'])
+def list_user_bookings(user_id: int):
+    """List bookings for a specific user with item details."""
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT b.booking_id, b.user_id, b.booking_date, b.status,
+                   bi.booking_item_id, bi.movie_id, bi.seats_booked, bi.price,
+                   m.title AS movie_title
+            FROM bookings b
+            LEFT JOIN booking_items bi ON bi.booking_id = b.booking_id
+            LEFT JOIN movies m ON m.movie_id = bi.movie_id
+            WHERE b.user_id=%s
+            ORDER BY b.booking_date DESC, b.booking_id DESC
+            """,
+            (user_id,)
+        )
+
+        rows = cursor.fetchall()
+        by_id = {}
+        for r in rows:
+            booking_id = r[0]
+            if booking_id not in by_id:
+                by_id[booking_id] = {
+                    "booking_id": booking_id,
+                    "user_id": r[1],
+                    "booking_date": r[2].isoformat() if hasattr(r[2], 'isoformat') else str(r[2]),
+                    "status": r[3],
+                    "items": [],
+                    "total_amount": 0.0,
+                    "total_seats": 0,
+                }
+            if r[4] is not None:
+                item = {
+                    "booking_item_id": r[4],
+                    "movie_id": r[5],
+                    "seats_booked": r[6],
+                    "price": float(r[7]) if r[7] is not None else 0.0,
+                    "movie_title": r[8],
+                }
+                by_id[booking_id]["items"].append(item)
+                by_id[booking_id]["total_amount"] += item["price"]
+                by_id[booking_id]["total_seats"] += (item["seats_booked"] or 0)
+
+        return jsonify(list(by_id.values()))
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+

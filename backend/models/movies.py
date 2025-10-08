@@ -42,24 +42,14 @@ def add_movie():
     description = data.get('description', '')
     duration = data.get('duration', 0)
     showtime = data.get('showtime')
-    admin_email = data.get("admin_email")
-    admin_password = data.get("admin_password")
 
     # Validate required fields
     if not all([title, showtime, genre_id]):
         return jsonify({"success": False, "message": "Title, showtime, and genre_id are required"}), 400
 
-    if not (admin_email and admin_password):
-        return jsonify({"success": False, "message": "Admin credentials required"}), 401
-
     conn = get_db()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT is_admin FROM users WHERE email=%s AND password=%s", (admin_email, admin_password))
-        r = cursor.fetchone()
-        if not r or r[0] != 1:
-            return jsonify({"success": False, "message": "Not authorized"}), 403
-
         cursor.execute(
             "INSERT INTO movies (genre_id, title, price, available_seats, description, duration, showtime) VALUES (%s,%s,%s,%s,%s,%s,%s)",
             (genre_id, title, price, available_seats, description, duration, showtime)
@@ -82,27 +72,18 @@ def update_movie(movie_id):
     genre_id = data.get('genre_id')
     duration = data.get('duration')
     showtime = data.get('showtime')
-    admin_email = data.get("admin_email")
-    admin_password = data.get("admin_password")
+    description = data.get('description')
 
     # Validate required fields
     if not all([title, showtime, genre_id]):
         return jsonify({"success": False, "message": "Title, showtime, and genre_id are required"}), 400
 
-    if not (admin_email and admin_password):
-        return jsonify({"success": False, "message": "Admin credentials required"}), 401
-
     conn = get_db()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT is_admin FROM users WHERE email=%s AND password=%s", (admin_email, admin_password))
-        r = cursor.fetchone()
-        if not r or r[0] != 1:
-            return jsonify({"success": False, "message": "Not authorized"}), 403
-
         cursor.execute(
-            "UPDATE movies SET title=%s, price=%s, available_seats=%s, genre_id=%s, duration=%s, showtime=%s WHERE movie_id=%s",
-            (title, price, available_seats, genre_id, duration, showtime, movie_id)
+            "UPDATE movies SET title=%s, price=%s, available_seats=%s, genre_id=%s, duration=%s, showtime=%s, description=%s WHERE movie_id=%s",
+            (title, price, available_seats, genre_id, duration, showtime, description, movie_id)
         )
         conn.commit()
         return jsonify({"success": True, "message": "Movie updated"})
