@@ -1,58 +1,74 @@
-# E-commerce Project
+# Movie-Booking-System Project
 
 ## Description
 This repository contains the source code for a full-stack E-commerce application. The project is divided into two main parts: the backend (Flask API) and the frontend (React.js app). Below is the detailed file structure and description of the project.
 
 ## Project Structure
-```
-ecommerce-project/
+BOOKLEGION/
+├── 📁 backend/                          # Flask Backend Server
+│   ├── 🐍 app.py                        # Main Flask application entry point
+│   ├── ⚙️ config.py                     # Database configuration (MySQL)
+│   ├── 🗄️ db.py                         # Database connection handler
+│   ├── 📋 requirements.txt              # Python dependencies
+│   ├── 🗃️ movie_booking.db             # SQLite database (backup)
+│   ├── 🔧 setup_sqlite_db.py           # SQLite setup script
+│   ├── 📁 __pycache__/                 # Python bytecode cache
+│   └── 📁 models/                       # API Route Handlers (Blueprints)
+│       ├── 🐍 __init__.py              # Models package initialization
+│       ├── 🎬 movies.py                # Movie CRUD operations
+│       ├── 👤 users.py                 # User management
+│       ├── 🔐 login.py                 # Authentication login
+│       ├── 📝 signup.py                # User registration
+│       ├── 🛒 watchlist.py             # Cart/Watchlist management
+│       ├── 🎫 bookings.py              # Booking operations
+│       ├── 💳 payments.py              # Payment processing
+│       ├── ⭐ reviews.py               # Movie reviews
+│       └── 🎭 genres.py                # Genre management
 │
-├── backend/                     # Flask + MySQL (DB layer)
-│   ├── app.py                   # Main Flask app with routes
-│   ├── db.py                    # DB connection (MySQL)
-│   ├── models/                  # Query functions
-│   │   ├── customers.py
-│   │   ├── products.py
-│   │   ├── cart.py
-│   │   ├── orders.py
-│   │   ├── payments.py
-│   │   ├── reviews.py
-│   │   ├── categories.py
-│   │   ├── login.py             # Login-related queries
-│   │   └── signup.py            # Signup-related queries
-│   ├── requirements.txt         # Flask, mysql-connector, etc.
-│   └── config.py                # DB credentials
+├── 📁 frontend/                         # React Frontend Application
+│   ├── 📦 package.json                 # Node.js dependencies
+│   ├── 📦 package-lock.json            # Dependency lock file
+│   ├── 📁 node_modules/                # Installed packages
+│   ├── 📁 public/                      # Static assets
+│   │   └── 🌐 index.html               # Main HTML template
+│   └── 📁 src/                         # React source code
+│       ├── 🎯 index.js                 # React app entry point
+│       ├── 🎨 App.js                   # Main App component
+│       ├── 🎨 App.css                  # Global styles + Seat Selection styles
+│       ├── 📁 api/                     # API Communication
+│       │   └── 🌐 api.js               # API endpoints & functions
+│       ├── 📁 components/              # Reusable UI Components
+│       │   ├── 🎬 ProductCard.js       # Movie card component
+│       │   ├── 🔒 ProtectedRoute.js    # Route protection
+│       │   └── 🪑 SeatSelection.js     # NEW: Seat selection modal
+│       ├── 📁 pages/                   # Page Components
+│       │   ├── 🏠 Home.js              # Movie listing page
+│       │   ├── 🔐 Login.js             # Login page
+│       │   ├── 📝 Signup.js            # Registration page
+│       │   ├── 🛒 Watchlist.js         # Cart/Watchlist page
+│       │   ├── 💳 Checkout.js          # Checkout page
+│       │   ├── 💰 Payment.js           # Payment page
+│       │   └── 📁 admin/               # Admin panel pages
+│       │       ├── 🎬 ManageMovies.js  # Movie management
+│       │       ├── 👥 ManageUsers.js   # User management
+│       │       └── 🎭 ManageGenres.js  # Genre management
+│       ├── 📁 context/                 # React Context
+│       │   └── 🔐 AuthContext.js       # Authentication state
+│       └── 📁 constants/              # App Constants
+│           └── 🌐 apiEndpoints.js      # API endpoint URLs
 │
-├── frontend/                    # React.js (UI layer)
-│   ├── package.json             # React dependencies
-│   ├── public/
-│   │   └── index.html
-│   └── src/
-│       ├── App.js               # React Router
-│       ├── index.js
-│       ├── pages/               # Pages in flow
-│       │   ├── Login.js
-│       │   ├── Signup.js
-│       │   ├── Home.js
-│       │   ├── Cart.js
-│       │   ├── Checkout.js
-│       │   ├── Payment.js
-│       │   ├── Review.js
-│       │   └── Admin.js
-│       └── components/          # Small reusable UI
-│           ├── Navbar.js
-│           ├── ProductCard.js
-│           ├── CartItem.js
-│           └── ProtectedRoute.js
+├── 📁 database/                        # Database Schema
+│   └── 🗄️ schema.sql                   # MySQL database structure
 │
-└── database/
-    └── schema.sql               # SQL CREATE TABLEs
+├── 📄 README.md                        # Project documentation
+├── 📋 requirements-dev.txt             # Development dependencies
+└── 🔧 .gitignore                       # Git ignore rules
 ```
 
 ## Features
 - User authentication and authorization
-- Product catalog with search and filtering
-- Shopping cart functionality
+- Movie catalog with search and filtering
+- Cart functionality
 - Order management
 - Payment processing
 - Admin dashboard
@@ -67,8 +83,8 @@ ecommerce-project/
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/ecommerce-project.git
-cd ecommerce-project
+git clone https://github.com/yourusername/Movie-Booking-System.git
+cd Movie-Booking-System
 ```
 
 2. Install backend dependencies

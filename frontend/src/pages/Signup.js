@@ -18,7 +18,7 @@ export default function Signup() {
       const res = await api.signup({ name, email, password });
       if (res.success) {
         const login = await api.login({ email, password });
-        if (login.success) { loginUser(login); navigate("/", { replace: true }); }
+        if (login.success) { loginUser(login); navigate("/home", { replace: true }); }
         setMessage({ type: "success", text: "Signup successful" });
       } else {
         setMessage({ type: "error", text: res.message || "Signup failed" });

@@ -45,7 +45,7 @@ export const api = {
     return handleResponse(await fetch(url.toString(), { method: "DELETE" }));
   },
   getWatchlist: async (userId) => handleResponse(await fetch(endpoints.watchlist.get(userId))),
-  addToWatchlist: async ({ user_id, movie_id, seats_selected = 1 }) => handleResponse(await fetch(endpoints.watchlist.add, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_id, movie_id, seats_selected }) })),
+  addToWatchlist: async ({ user_id, movie_id, seats_selected = 1, selected_seats = '' }) => handleResponse(await fetch(endpoints.watchlist.add, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_id, movie_id, seats_selected, selected_seats }) })),
   removeFromWatchlist: async (watchlistId) => handleResponse(await fetch(endpoints.watchlist.remove(watchlistId), { method: "DELETE" })),
   createBooking: async ({ customer_id }) => handleResponse(await fetch(endpoints.bookings.create, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer_id }) })),
   listAllBookings: async ({ admin_email, admin_password }) => {

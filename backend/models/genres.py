@@ -23,11 +23,23 @@ def get_genres():
 @genres_bp.route('', methods=['POST'])
 def add_genre():
     data = request.get_json()
+    admin_email = data.get('admin_email')
+    admin_password = data.get('admin_password')
+    
+    if not (admin_email and admin_password):
+        return jsonify({"success": False, "message": "Admin credentials required"}), 401
+    
     name = data.get("name")
 
     conn = get_db()
     cursor = conn.cursor()
     try:
+        # Verify admin credentials
+        cursor.execute("SELECT is_admin FROM users WHERE email=%s AND password=%s", (admin_email, admin_password))
+        r = cursor.fetchone()
+        if not r or r[0] != 1:
+            return jsonify({"success": False, "message": "Not authorized"}), 403
+        
         cursor.execute("INSERT INTO genres (name) VALUES (%s)", (name,))
         conn.commit()
         return jsonify({"success": True, "message": "Genre added"})
@@ -44,6 +56,17 @@ def modify_genre(genre_id):
     cursor = conn.cursor()
     try:
         data = request.get_json() if request.method == "PUT" else request.args
+        admin_email = data.get('admin_email')
+        admin_password = data.get('admin_password')
+        
+        if not (admin_email and admin_password):
+            return jsonify({"success": False, "message": "Admin credentials required"}), 401
+        
+        # Verify admin credentials
+        cursor.execute("SELECT is_admin FROM users WHERE email=%s AND password=%s", (admin_email, admin_password))
+        r = cursor.fetchone()
+        if not r or r[0] != 1:
+            return jsonify({"success": False, "message": "Not authorized"}), 403
 
         if request.method == "PUT":
             name = data.get("name")

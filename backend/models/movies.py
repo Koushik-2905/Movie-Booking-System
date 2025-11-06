@@ -35,6 +35,12 @@ def get_movies():
 @movies_bp.route('', methods=['POST'])
 def add_movie():
     data = request.get_json()
+    admin_email = data.get('admin_email')
+    admin_password = data.get('admin_password')
+    
+    if not (admin_email and admin_password):
+        return jsonify({"success": False, "message": "Admin credentials required"}), 401
+    
     title = data.get('title')
     price = data.get('price', 0)
     available_seats = data.get('available_seats', 0)
@@ -44,12 +50,18 @@ def add_movie():
     showtime = data.get('showtime')
 
     # Validate required fields
-    if not all([title, showtime, genre_id]):
-        return jsonify({"success": False, "message": "Title, showtime, and genre_id are required"}), 400
+    if not all([title, genre_id]):
+        return jsonify({"success": False, "message": "Title and genre_id are required"}), 400
 
     conn = get_db()
     cursor = conn.cursor()
     try:
+        # Verify admin credentials
+        cursor.execute("SELECT is_admin FROM users WHERE email=%s AND password=%s", (admin_email, admin_password))
+        r = cursor.fetchone()
+        if not r or r[0] != 1:
+            return jsonify({"success": False, "message": "Not authorized"}), 403
+        
         cursor.execute(
             "INSERT INTO movies (genre_id, title, price, available_seats, description, duration, showtime) VALUES (%s,%s,%s,%s,%s,%s,%s)",
             (genre_id, title, price, available_seats, description, duration, showtime)
@@ -66,6 +78,12 @@ def add_movie():
 @movies_bp.route('/<int:movie_id>', methods=['PUT'])
 def update_movie(movie_id):
     data = request.get_json()
+    admin_email = data.get('admin_email')
+    admin_password = data.get('admin_password')
+    
+    if not (admin_email and admin_password):
+        return jsonify({"success": False, "message": "Admin credentials required"}), 401
+    
     title = data.get('title')
     price = data.get('price')
     available_seats = data.get('available_seats')
@@ -75,12 +93,18 @@ def update_movie(movie_id):
     description = data.get('description')
 
     # Validate required fields
-    if not all([title, showtime, genre_id]):
-        return jsonify({"success": False, "message": "Title, showtime, and genre_id are required"}), 400
+    if not all([title, genre_id]):
+        return jsonify({"success": False, "message": "Title and genre_id are required"}), 400
 
     conn = get_db()
     cursor = conn.cursor()
     try:
+        # Verify admin credentials
+        cursor.execute("SELECT is_admin FROM users WHERE email=%s AND password=%s", (admin_email, admin_password))
+        r = cursor.fetchone()
+        if not r or r[0] != 1:
+            return jsonify({"success": False, "message": "Not authorized"}), 403
+        
         cursor.execute(
             "UPDATE movies SET title=%s, price=%s, available_seats=%s, genre_id=%s, duration=%s, showtime=%s, description=%s WHERE movie_id=%s",
             (title, price, available_seats, genre_id, duration, showtime, description, movie_id)

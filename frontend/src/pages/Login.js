@@ -15,7 +15,7 @@ export default function Login() {
     setMessage(null);
     try {
       const data = await api.login({ email, password });
-      if (data.success) { loginUser(data); setMessage({ type: "success", text: "Logged in" }); navigate("/", { replace: true }); }
+      if (data.success) { loginUser(data); setMessage({ type: "success", text: "Logged in" }); navigate("/home", { replace: true }); }
       else setMessage({ type: "error", text: data.message || "Login failed" });
     } catch (e) { setMessage({ type: "error", text: e.message || "Login failed" }); }
   }
