@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 const SeatSelection = ({ movie, onConfirm, onCancel, isOpen }) => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [seatCount, setSeatCount] = useState(1);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   // Generate seat layout (10 rows x 15 seats = 150 seats)
   const rows = 10;
@@ -38,13 +40,27 @@ const SeatSelection = ({ movie, onConfirm, onCancel, isOpen }) => {
     
     const newSeats = [...seats];
     const isSelected = newSeats[rowIndex][seatIndex].selected;
+    const availableSeats = movie.available_seats || 0;
     
     // If clicking on a selected seat, deselect it
     if (isSelected) {
       newSeats[rowIndex][seatIndex].selected = false;
       setSelectedSeats(prev => prev.filter(s => s !== seat.id));
+      setSeats(newSeats);
     } else {
-      // Check if we can select more seats
+      // Check if selecting this seat would exceed available seats
+      const wouldExceed = selectedSeats.length >= availableSeats;
+      
+      if (wouldExceed) {
+        // Show popup alert
+        setAlertMessage(`Cannot select more than ${availableSeats} seat${availableSeats !== 1 ? 's' : ''}. Only ${availableSeats} seat${availableSeats !== 1 ? 's are' : ' is'} available for this movie.`);
+        setShowAlert(true);
+        // Auto-hide after 3 seconds
+        setTimeout(() => setShowAlert(false), 3000);
+        return; // Don't select the seat
+      }
+      
+      // Check if we've reached the selected seat count limit
       if (selectedSeats.length >= seatCount) {
         // Remove the first selected seat
         const firstSelected = selectedSeats[0];
@@ -56,9 +72,8 @@ const SeatSelection = ({ movie, onConfirm, onCancel, isOpen }) => {
       // Select the new seat
       newSeats[rowIndex][seatIndex].selected = true;
       setSelectedSeats(prev => [...prev, seat.id]);
+      setSeats(newSeats);
     }
-    
-    setSeats(newSeats);
   };
 
   const handleConfirm = () => {
@@ -72,6 +87,17 @@ const SeatSelection = ({ movie, onConfirm, onCancel, isOpen }) => {
   };
 
   const handleSeatCountChange = (newCount) => {
+    // Validate against available seats
+    const maxSeats = movie.available_seats || 0;
+    if (newCount > maxSeats) {
+      // Show alert popup
+      setAlertMessage(`Cannot select more than ${maxSeats} seat${maxSeats !== 1 ? 's' : ''}. Only ${maxSeats} seat${maxSeats !== 1 ? 's are' : ' is'} available for this movie.`);
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
+      // Reset to max available
+      setSeatCount(maxSeats);
+      return;
+    }
     setSeatCount(newCount);
     // Adjust selected seats if needed
     if (selectedSeats.length > newCount) {
@@ -93,6 +119,17 @@ const SeatSelection = ({ movie, onConfirm, onCancel, isOpen }) => {
 
   return (
     <div className="seat-selection-modal">
+      {/* Alert Popup */}
+      {showAlert && (
+        <div className="seat-alert-popup">
+          <div className="seat-alert-content">
+            <div className="seat-alert-icon">⚠️</div>
+            <div className="seat-alert-message">{alertMessage}</div>
+            <button className="seat-alert-close" onClick={() => setShowAlert(false)}>×</button>
+          </div>
+        </div>
+      )}
+      
       <div className="seat-selection-content">
         <div className="seat-selection-header">
           <h2>Select Seats for {movie.title}</h2>
@@ -106,10 +143,18 @@ const SeatSelection = ({ movie, onConfirm, onCancel, isOpen }) => {
               value={seatCount} 
               onChange={(e) => handleSeatCountChange(Number(e.target.value))}
             >
-              {[1,2,3,4,5,6,7,8].map(num => (
+              {Array.from({ length: Math.min(movie.available_seats || 8, 8) }, (_, i) => i + 1).map(num => (
                 <option key={num} value={num}>{num}</option>
               ))}
             </select>
+            {movie.available_seats && movie.available_seats > 8 && (
+              <span style={{ marginLeft: '10px', fontSize: '11px', color: '#f1a7b0' }}>
+                (Max: {movie.available_seats} available)
+              </span>
+            )}
+            <span style={{ marginLeft: '10px', fontSize: '12px', color: 'var(--muted)' }}>
+              (Max: {movie.available_seats || 0} available)
+            </span>
           </div>
 
           <div className="screen-indicator">

@@ -64,7 +64,22 @@ def add_to_watchlist():
         return jsonify({"success": True, "message": "Added to watchlist"})
     except Exception as e:
         conn.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
+        error_msg = str(e)
+        # Extract MySQL trigger error message
+        # MySQL connector error format: "1644 (45000): Cannot select X seats. Only Y seats are available..."
+        if "45000" in error_msg or "Cannot select" in error_msg or "seats are available" in error_msg:
+            # Extract the actual message after the error code
+            import re
+            # Pattern to match: "Cannot select X seats. Only Y seats are available for this movie."
+            match = re.search(r"Cannot select \d+ seats\. Only \d+ seats are available[^.]*", error_msg)
+            if match:
+                error_msg = match.group(0) + "."
+            else:
+                # Try to extract message after colon
+                parts = error_msg.split(":", 1)
+                if len(parts) > 1:
+                    error_msg = parts[1].strip()
+        return jsonify({"success": False, "message": error_msg}), 500
     finally:
         cursor.close()
         conn.close()

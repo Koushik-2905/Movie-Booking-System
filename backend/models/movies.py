@@ -1,7 +1,61 @@
 from flask import Blueprint, request, jsonify
 from db import get_db
+from datetime import datetime
 
 movies_bp = Blueprint('movies', __name__)
+
+def parse_datetime(dt_string):
+    """Parse various datetime formats and convert to MySQL format (YYYY-MM-DD HH:MM:SS)"""
+    if not dt_string:
+        return None
+    
+    # Convert to string if not already
+    if not isinstance(dt_string, str):
+        dt_string = str(dt_string)
+    
+    # If already in MySQL format, return as is
+    if len(dt_string) >= 19 and dt_string[10] == ' ':
+        try:
+            datetime.strptime(dt_string[:19], '%Y-%m-%d %H:%M:%S')
+            return dt_string[:19]
+        except ValueError:
+            pass
+    
+    # Try parsing common datetime formats
+    formats = [
+        '%Y-%m-%d %H:%M:%S',  # MySQL format
+        '%Y-%m-%dT%H:%M:%S',  # ISO format
+        '%Y-%m-%dT%H:%M:%SZ',  # ISO with Z
+        '%Y-%m-%dT%H:%M:%S.%fZ',  # ISO with microseconds and Z
+        '%a, %d %b %Y %H:%M:%S %Z',  # HTTP date format (e.g., "Sun, 05 Oct 2025 18:00:00 GMT")
+        '%a, %d %b %Y %H:%M:%S GMT',  # HTTP date format explicit GMT
+        '%Y-%m-%d %H:%M',  # Without seconds
+        '%Y-%m-%d',  # Date only
+    ]
+    
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(dt_string, fmt)
+            return dt.strftime('%Y-%m-%d %H:%M:%S')
+        except (ValueError, TypeError):
+            continue
+    
+    # Try to extract date and time from HTTP format manually if standard parsing fails
+    # Format: "Sun, 05 Oct 2025 18:00:00 GMT"
+    import re
+    http_match = re.match(r'[A-Za-z]{3},\s+(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})\s+(\d{2}):(\d{2}):(\d{2})', dt_string)
+    if http_match:
+        day, month_str, year, hour, minute, second = http_match.groups()
+        month_map = {
+            'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+            'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+        }
+        month = month_map.get(month_str)
+        if month:
+            return f"{year}-{month}-{day.zfill(2)} {hour}:{minute}:{second}"
+    
+    # If still can't parse, return None
+    return None
 
 def dict_from_cursor(cursor):
     """Convert MySQL cursor results to a list of dictionaries"""
@@ -47,11 +101,15 @@ def add_movie():
     genre_id = data.get('genre_id')
     description = data.get('description', '')
     duration = data.get('duration', 0)
-    showtime = data.get('showtime')
+    showtime_raw = data.get('showtime')
+    showtime = parse_datetime(showtime_raw) if showtime_raw else None
 
     # Validate required fields
     if not all([title, genre_id]):
         return jsonify({"success": False, "message": "Title and genre_id are required"}), 400
+    
+    if not showtime:
+        return jsonify({"success": False, "message": "Showtime is required and must be in a valid format (YYYY-MM-DD HH:MM:SS)"}), 400
 
     conn = get_db()
     cursor = conn.cursor()
@@ -89,12 +147,17 @@ def update_movie(movie_id):
     available_seats = data.get('available_seats')
     genre_id = data.get('genre_id')
     duration = data.get('duration')
-    showtime = data.get('showtime')
+    showtime_raw = data.get('showtime')
+    showtime = parse_datetime(showtime_raw) if showtime_raw else None
     description = data.get('description')
 
     # Validate required fields
     if not all([title, genre_id]):
         return jsonify({"success": False, "message": "Title and genre_id are required"}), 400
+    
+    # If showtime is provided, validate it
+    if showtime_raw and not showtime:
+        return jsonify({"success": False, "message": "Invalid showtime format. Use YYYY-MM-DD HH:MM:SS format"}), 400
 
     conn = get_db()
     cursor = conn.cursor()
